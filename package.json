@@ -1,0 +1,33 @@
+{
+  "name": "qr-code-manager",
+  "version": "1.0.0",
+  "description": "QR Code Management System",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "qr",
+    "qrcode",
+    "redirect",
+    "url shortener"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "jimp": "^0.22.7",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^7.0.3",
+    "qrcode": "^1.5.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.21"
+  }
+}

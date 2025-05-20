@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý Mã QR</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="icon" type="image/png" href="/favicon.ico">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand" href="/">
+        <img src="/logo.png" alt="Logo" height="30" class="d-inline-block align-text-top me-2">
+        Quản lý Mã QR
+      </a>
+      <div class="d-flex">
+        <span class="navbar-text me-3">
+          <i class="bi bi-person-circle"></i> Đã đăng nhập với tên: <strong>admin</strong>
+        </span>
+        <button class="btn btn-outline-light" id="logout-btn">Đăng xuất</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+    <div class="row">
+      <div class="col-md-6 mb-4">
+        <div class="card">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Tạo Mã QR Mới</h5>
+          </div>
+          <div class="card-body">
+            <form id="qr-form">
+              <div class="mb-3">
+                <label for="title" class="form-label">Tiêu đề</label>
+                <input type="text" class="form-control" id="title" required>
+              </div>
+              <div class="mb-3">
+                <label for="destination-url" class="form-label">URL Đích</label>
+                <input type="url" class="form-control" id="destination-url" required>
+                <div class="form-text">Đây là URL mà người dùng sẽ được chuyển hướng đến.</div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Tùy chọn Mã QR</label>
+                <div class="form-check form-switch mb-2">
+                  <input class="form-check-input" type="checkbox" id="use-logo" checked>
+                  <label class="form-check-label" for="use-logo">Bao gồm Logo</label>
+                </div>
+                <div class="mb-2">
+                  <label for="logo-bg-color" class="form-label">Màu Nền Logo</label>
+                  <input type="color" class="form-control form-control-color" id="logo-bg-color" value="#FFFFFF">
+                </div>
+                <div class="mb-2">
+                  <label for="logo-margin" class="form-label">Khoảng Cách Logo</label>
+                  <input type="range" class="form-range" id="logo-margin" min="0" max="10" value="5">
+                </div>
+                <div class="mb-2">
+                  <label class="form-label">Kiểu QR</label>
+                  <select class="form-select" id="qr-style">
+                    <option value="square">Vuông (Cổ điển)</option>
+                    <option value="rounded">Bo tròn</option>
+                    <option value="dots">Chấm</option>
+                  </select>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col">
+                  <label for="qr-color" class="form-label">Màu QR</label>
+                  <input type="color" class="form-control form-control-color" id="qr-color" value="#000000">
+                </div>
+                <div class="col">
+                  <label for="bg-color" class="form-label">Màu Nền</label>
+                  <input type="color" class="form-control form-control-color" id="bg-color" value="#FFFFFF">
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary">Tạo Mã QR</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 mb-4">
+        <div class="card">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Mã QR Đã Tạo</h5>
+          </div>
+          <div class="card-body text-center" id="qr-result">
+            <p class="mb-4">Điền vào biểu mẫu để tạo mã QR.</p>
+            <div id="qr-code-container" class="d-none">
+              <img id="qr-code-image" class="img-fluid mb-3" alt="Mã QR">
+              <div class="mb-3">
+                <span class="fw-bold me-2">URL Chuyển hướng:</span>
+                <a id="redirect-url" href="#" target="_blank"></a>
+              </div>
+              <div class="d-grid gap-2 d-md-block">
+                <button id="download-btn" class="btn btn-outline-primary me-2">
+                  <i class="bi bi-download"></i> Tải xuống
+                </button>
+                <button id="copy-url-btn" class="btn btn-outline-secondary">
+                  <i class="bi bi-clipboard"></i> Sao chép URL
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt-3">
+      <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Các Mã QR Của Bạn</h5>
+        <button id="delete-selected-btn" class="btn btn-sm btn-danger d-none">
+          <i class="bi bi-trash"></i> Xóa Mục Đã Chọn
+        </button>
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="select-all">
+            <label class="form-check-label" for="select-all">
+              Chọn Tất Cả
+            </label>
+          </div>
+        </div>
+        <div id="qr-codes-container" class="row g-4">
+          <div class="col-12 text-center" id="loading-indicator">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Đang tải...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QR Code Edit Modal -->
+  <div class="modal fade" id="edit-modal" tabindex="-1" aria-labelledby="edit-modal-label" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="edit-modal-label">Chỉnh Sửa Mã QR</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+        </div>
+        <div class="modal-body">
+          <form id="edit-form">
+            <input type="hidden" id="edit-id">
+            <div class="mb-3">
+              <label for="edit-title" class="form-label">Tiêu đề</label>
+              <input type="text" class="form-control" id="edit-title" required>
+            </div>
+            <div class="mb-3">
+              <label for="edit-destination-url" class="form-label">URL Đích</label>
+              <input type="url" class="form-control" id="edit-destination-url" required>
+            </div>
+            <div class="mb-3">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="edit-active" checked>
+                <label class="form-check-label" for="edit-active">Hoạt động</label>
+              </div>
+            </div>
+            <div class="mb-3">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="edit-use-logo" checked>
+                <label class="form-check-label" for="edit-use-logo">Bao gồm Logo</label>
+              </div>
+            </div>
+            <div class="mb-2">
+              <label for="edit-logo-bg-color" class="form-label">Màu Nền Logo</label>
+              <input type="color" class="form-control form-control-color" id="edit-logo-bg-color" value="#FFFFFF">
+            </div>
+            <div class="mb-2">
+              <label for="edit-logo-margin" class="form-label">Khoảng Cách Logo</label>
+              <input type="range" class="form-range" id="edit-logo-margin" min="0" max="10" value="5">
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Kiểu QR</label>
+              <select class="form-select" id="edit-qr-style">
+                <option value="square">Vuông (Cổ điển)</option>
+                <option value="rounded">Bo tròn</option>
+                <option value="dots">Chấm</option>
+              </select>
+            </div>
+            <div class="row mb-3">
+              <div class="col">
+                <label for="edit-qr-color" class="form-label">Màu QR</label>
+                <input type="color" class="form-control form-control-color" id="edit-qr-color" value="#000000">
+              </div>
+              <div class="col">
+                <label for="edit-bg-color" class="form-label">Màu Nền</label>
+                <input type="color" class="form-control form-control-color" id="edit-bg-color" value="#FFFFFF">
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="button" class="btn btn-danger me-auto" id="delete-btn">Xóa</button>
+          <button type="button" class="btn btn-primary" id="save-btn">Lưu Thay Đổi</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="change-password-modal" tabindex="-1" aria-labelledby="change-password-modal-label" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="change-password-modal-label">Đổi Mật Khẩu</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+        </div>
+        <div class="modal-body">
+          <form id="change-password-form">
+            <div class="mb-3">
+              <label for="current-password" class="form-label">Mật Khẩu Hiện Tại</label>
+              <input type="password" class="form-control" id="current-password" required>
+            </div>
+            <div class="mb-3">
+              <label for="new-password" class="form-label">Mật Khẩu Mới</label>
+              <input type="password" class="form-control" id="new-password" required>
+            </div>
+            <div class="mb-3">
+              <label for="confirm-password" class="form-label">Xác Nhận Mật Khẩu Mới</label>
+              <input type="password" class="form-control" id="confirm-password" required>
+            </div>
+            <div id="password-error-message" class="alert alert-danger d-none" role="alert"></div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="button" class="btn btn-primary" id="save-password-btn">Lưu Mật Khẩu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="bg-light py-3 mt-5">
+    <div class="container text-center">
+      <p class="mb-0">Quản lý Mã QR &copy; 2023</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html> 
